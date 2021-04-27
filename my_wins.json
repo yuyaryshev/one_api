@@ -1,0 +1,24 @@
+{
+    "x": 0,
+    "wins": {
+        "ide": { "app": true, "cmd": "D:\\ProgsReady\\IntellijIdeaUI\\bin\\idea64.exe" },
+        "watch": {
+            "cmd": "cls npm run ycplmon && npm run watch",
+            "no_run": false
+        },
+        "server": {
+            "cmd": "cls & npm run ycplmon & npm run nodemon",
+            "no_run": true
+        },
+        "ycplmon": {
+            "cmd": "cls & npm run ycplmon",
+            "no_run": true
+        },
+        "node": {
+            "cmd": "cls & npm run ycplmon & node",
+            "no_run": true
+        }
+    },
+    "disabled": {
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "instanceName": "local test",
+    "monitorEndpointPort": 29364,
+    "oracle": {
+        "user": "YOUR_LOGIN",
+        "password": "YOUR_PASSWORD",
+        "connectString": "BIREPDEV",
+        "schema": "BIREPORT_YOUR_NAME_STG"
+    }
+}
