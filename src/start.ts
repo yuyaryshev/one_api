@@ -1,3 +1,3 @@
-import { startApiServer } from "./startApiServer";
+import { startApiServer } from "./index";
 
 startApiServer();

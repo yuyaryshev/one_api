@@ -1,9 +1,9 @@
 {
-    "name": "yatasks_one_api",
+    "name": "one_api",
     "version": "1.0.0",
-    "private": true,
     "description": "A very simple back-end for small sites.",
     "main": "index.js",
+    "module": "index.js",
     "sideEffects_DISABLED": [],
     "scripts": {
         "start": "node ts_out\\src\\start.js",
@@ -12,19 +12,34 @@
         "nodemon": "nodemon ts_out\\src\\start.js --devuser=dev",
         "build_old": "babel src --config-file ./babel.ts.config.js --out-dir ts_out/src --extensions \".ts,.tsx\" --source-maps inline",
         "build": "npm run build:clean && npm run build:ts",
-        "build:ts": "npx rollup -c",
+        "build:ts": "tsc",
+        "build_old2:ts": "npx rollup -c",
         "build:clean": "rm -rf ./dist/*",
         "ycplmon": "node ..\\ycplmon_amaglion\\ts_out\\src\\ycplmon.js src",
         "tsc": "tsc",
         "deps": "echo Finding loops in .js requires... & del deps.png & madge ts_out/src -c -i deps.png && deps.png",
         "deps_all": "echo Generating full .js requires tree... & del deps.png & madge ts_out/src -i deps.png && deps.png",
         "deps_orphans": "echo Finding orphans .js requires... & del deps.png & madge ts_out/src --orphans -i deps.png && deps.png",
-        "deploy": "pm2 stop yatasks & git checkout . && git pull && pnpm i && npm run build && pm2 start yatasks"
+        "deploy": "pm2 stop yatasks & git checkout . && git pull && pnpm i && npm run build && pm2 start yatasks",
+        "republish": "npm run build && npm publish"
     },
     "author": "Yuri Yaryshev",
+    "homepage": "https://github.com/yuyaryshev/one_api",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yuyaryshev/one_api"
+    },
     "license": "Unlicense",
     "jest": {
-        "rootDir": "ts_out"
+        "transform": {
+            ".(ts|tsx)": "ts-jest"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ]
     },
     "prettier": {
         "tabWidth": 4,

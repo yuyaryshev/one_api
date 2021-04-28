@@ -1,4 +1,4 @@
-import { Env } from "../../startApiServer";
+import { Env } from "../../index";
 import { Express } from "express";
 import { publishOneApis } from "./oneApi";
 
