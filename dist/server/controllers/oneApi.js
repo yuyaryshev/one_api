@@ -1,7 +1,7 @@
 import { join } from "path";
 import { dateDiff, debugMsgFactory as debugjs, newId as newGuid } from "ystd";
 import { writeFileSerieSync, writeFileSyncIfChanged } from "ystd_server";
-import { decoderOneGetApiRequest, decoderOneGetApiResponse, decoderOneSaveApiRequest, decoderOneSaveApiResponse, } from "../../types/oneApi";
+import { decoderOneGetApiRequest, decoderOneGetApiResponse, decoderOneSaveApiRequest, decoderOneSaveApiResponse, } from "../../types/oneApi.js";
 import { readFileSync } from "fs";
 const debug = debugjs("oneApi");
 const dataPath = "./data";
@@ -21,7 +21,6 @@ export function publishOneApis(env, app) {
     app.get("/api/one", async function OneGetApi(req, res) {
         const requestTs = new Date().toISOString();
         let error = "CODE00000101 Unknown error";
-        let ok = false;
         try {
             const { dataVersionOnly } = {
                 dataVersionOnly: "0",
@@ -42,7 +41,7 @@ export function publishOneApis(env, app) {
                 parsed.dataVersion = newGuid();
                 writeFileSyncIfChanged(dataFilePath, JSON.stringify(parsed, undefined, "    "));
             }
-            if (!parsed.data.ts)
+            if (parsed && !parsed.data.ts)
                 parsed.data.ts = "2000-01-01 00:00:00";
             const { data, dataVersion } = parsed;
             return res.send(JSON.stringify(decoderOneGetApiResponse.runWithException({
@@ -63,7 +62,6 @@ export function publishOneApis(env, app) {
     app.post("/api/one", async function OneSaveApi(req, res) {
         const requestTs = new Date().toISOString();
         let error = "CODE00000104 Unknown error";
-        let ok = false;
         try {
             let parsed;
             let oldContent;
@@ -84,21 +82,20 @@ export function publishOneApis(env, app) {
             const oldData = prevFileContent.data;
             const oldDataVersion = prevFileContent.dataVersion;
             const oldTs = prevFileContent.dataTs;
-            if (oldContent && oldContent.length && dateDiff(parsed.data.ts, new Date()) > BACKUP_INTERVAL) {
+            if (oldContent && oldContent.length && parsed && dateDiff(parsed.data.ts, new Date()) > BACKUP_INTERVAL) {
                 // BACKUP old files with specified interval
                 const v_backupFileName = backupFileName(parsed.data.ts);
                 writeFileSerieSync(backupPath, v_backupFileName, oldContent, MAX_BACKUPS);
             }
             const { data, prevDataVersion, newDataVersion } = decoderOneSaveApiRequest.runWithException(req.body.params);
-            if (!data?.tasks?.length)
-                throw new Error(`CODE00000026 Can't save empty task list!`);
+            // if (!data?.tasks?.length) throw new Error(`CODE00000026 Can't save empty task list!`);
             if (!data.ts)
                 data.ts = new Date().toISOString();
             const newFileContent = JSON.stringify({ data, dataVersion: newDataVersion }, undefined, "    ");
             if (!data.ts)
                 data.ts = new Date().toISOString();
             const newDataTs = data.ts;
-            let reverseConflict = oldTs >= newDataTs;
+            const reverseConflict = oldTs >= newDataTs;
             if (oldContent && oldContent.length && oldDataVersion !== prevDataVersion) {
                 if (!reverseConflict) {
                     // Backup old data as a conflict missing version

@@ -1,1 +1,1 @@
-npm run build && npm publish
+npm run build && npm publish && npm uninstall -g yone_api && npm install -g yone_api@latest && yone_api

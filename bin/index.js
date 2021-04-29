@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-require("../dist/initServer").startApiServer();
+import { startApiServer } from "../dist/index.js";
+startApiServer().then();

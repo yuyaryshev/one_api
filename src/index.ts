@@ -2,37 +2,25 @@ import deepMerge from "deepmerge";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { debugMsgFactory, ManageableTimer, yconsole } from "ystd";
-// import oracledb from "oracledb";
-// import { OracleConnection0 } from "Yoracle";
 import express from "express";
-import { publishApis } from "./server/controllers/index";
+import { publishApis } from "./server/controllers/index.js";
 import http from "http";
 // @ts-ignore
 import cors from "cors";
+
 // @ts-ignore
 //import nodeSSPI from "express-node-sspi";
 
 const debug = debugMsgFactory("startup");
 
-// export interface OracleSettings {
-//     user: string;
-//     password: string;
-//     connectString: string;
-//     schema?: string;
-// }
-
 export interface EnvSettings {
-    //    oracle: OracleSettings;
-    noDbTest: false;
+    default?: boolean;
     port: number;
-    instanceName: string;
 }
 
 export const defaultSettings = (): EnvSettings => ({
+    default: true,
     port: 4300,
-    instanceName: "unnamed",
-    //    oracle: {} as any,
-    noDbTest: false,
 });
 
 export interface Env {
@@ -58,38 +46,26 @@ export const startApiServer = async (args?: any): Promise<Env> => {
         terminating: false,
         timers: new Set(),
         terminate: () => {
-            for (let callback of pthis.onTerminateCallbacks) callback();
+            for (const callback of pthis.onTerminateCallbacks) callback();
             pthis.terminating = true;
-            for (let timer of pthis.timers) timer.cancel();
+            for (const timer of pthis.timers) timer.cancel();
         },
     } as any) as Env;
 
-    yconsole.log(`CODE00000094`, `Starting ysurvey...`);
+    yconsole.log(`CODE00000094`, `Starting yone_api...`);
     const settingsPath = resolve("./settings.json");
     yconsole.log(`CODE00000197`, `settingsPath = ${settingsPath}`);
 
-    const settings = deepMerge(defaultSettings(), JSON.parse(readFileSync(settingsPath, "utf-8")));
-    if (settings.port) yconsole.log(`CODE00000198`, `Api server on port ${settings.port}`);
-
-    let v: IssueLoaderVersion = {};
-    try {
-        v = JSON.parse(readFileSync("version.json", "utf-8"));
-    } catch (e) {
-        if (e.code !== "ENOENT") throw e;
-    }
-    const versionStr = `${v.major || 0}.${v.minor || 0}.${v.build || 0}`;
-    yconsole.log(`CODE00000199`, `version = ${versionStr}`);
-
-    yconsole.log(`CODE00000307`, `Load settings - finished`);
+    const settingsFromFile = JSON.parse(readFileSync(settingsPath, "utf-8"));
+    settingsFromFile.default = false;
+    const settings = deepMerge(defaultSettings(), settingsFromFile);
 
     const env = Object.assign(pthis, {
-        versionStr,
         args,
         settings,
         //        dbProvider,
     } as Env);
 
-    yconsole.log(`CODE00000284`, `startApiServer`);
     if (!env.settings.port) throw new Error(`CODE00000183 No port specified!`);
 
     //    const sspiInstance = nodeSSPI({ retrieveGroups: false });
@@ -130,22 +106,15 @@ export const startApiServer = async (args?: any): Promise<Env> => {
 
     publishApis(env, app);
 
-    let httpServer = http.createServer(app);
+    const httpServer = http.createServer(app);
 
     const httpServerInstance = httpServer.listen(env.settings.port, () => {
-        console.log(
-            `CODE00000282`,
-            `Started /runStatus and /api/runStatus monitor endpoint on port ${env.settings.port}...`
-        );
-        yconsole.log(
-            `CODE00000283`,
-            `Started /runStatus and /api/runStatus monitor endpoint on port ${env.settings.port}...`
-        );
+        yconsole.log(`CODE00000282`, `Started http://localhost:${env.settings.port}/api/one`);
     });
 
     env.onTerminateCallbacks.push(() => {
         httpServerInstance.close();
     });
-    yconsole.log(`CODE00000279`, `startEnv - finished`);
+    //    yconsole.log(`CODE00000279`, `yone_api - finished`);
     return env;
 };

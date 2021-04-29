@@ -1,8 +1,7 @@
 import { ManageableTimer } from "ystd";
 export interface EnvSettings {
-    noDbTest: false;
+    default?: boolean;
     port: number;
-    instanceName: string;
 }
 export declare const defaultSettings: () => EnvSettings;
 export interface Env {
