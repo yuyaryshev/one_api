@@ -3,20 +3,34 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 import { debugMsgFactory, yconsole } from "ystd";
 import express from "express";
-import { publishApis } from "./server/controllers/index.js";
 import http from "http";
 // @ts-ignore
 import cors from "cors";
+import { publishOneApis } from "./oneApi.js";
+import { emptyEnv, mergeEnv } from "ystd_server";
 // @ts-ignore
 //import nodeSSPI from "express-node-sspi";
 const debug = debugMsgFactory("startup");
 export const defaultSettings = () => ({
-    default: true,
     port: 4300,
 });
-export const startApiServer = async (args) => {
+export function mergeOneApiEnv(inputEnv) {
+    const pthis = mergeEnv(inputEnv || emptyEnv(), {
+        onTerminateCallbacks: [],
+        terminating: false,
+        timers: new Set(),
+        terminate: () => {
+            pthis.terminating = true;
+            for (const callback of pthis.onTerminateCallbacks)
+                callback();
+            for (const timer of pthis.timers)
+                timer.cancel();
+        },
+    });
+    return pthis;
+}
+export const startOneApiServer = async (opts) => {
     const pthis = {
-        args,
         onTerminateCallbacks: [],
         terminating: false,
         timers: new Set(),
@@ -31,11 +45,18 @@ export const startApiServer = async (args) => {
     yconsole.log(`CODE00000094`, `Starting yone_api...`);
     const settingsPath = resolve("./settings.json");
     yconsole.log(`CODE00000197`, `settingsPath = ${settingsPath}`);
-    const settingsFromFile = JSON.parse(readFileSync(settingsPath, "utf-8"));
-    settingsFromFile.default = false;
-    const settings = deepMerge(defaultSettings(), settingsFromFile);
+    let settingsFromFile;
+    try {
+        settingsFromFile = JSON.parse(readFileSync(settingsPath, "utf-8"));
+        settingsFromFile.default = false;
+    }
+    catch (e) {
+        if (e.code !== "ENOENT") {
+            console.error(`CODE00000000 Couldn't read '${settingsPath}' because of error\n`, e);
+        }
+    }
+    const settings = deepMerge(deepMerge(defaultSettings(), settingsFromFile || {}), opts || {});
     const env = Object.assign(pthis, {
-        args,
         settings,
         //        dbProvider,
     });
@@ -70,8 +91,8 @@ export const startApiServer = async (args) => {
     //     next();
     // });
     //    app.use(cors());
-    app.use(express.static("public"));
-    publishApis(env, app);
+    //app.use(express.static("public"));
+    publishOneApis(env, app);
     const httpServer = http.createServer(app);
     const httpServerInstance = httpServer.listen(env.settings.port, () => {
         yconsole.log(`CODE00000282`, `Started http://localhost:${env.settings.port}/api/one`);

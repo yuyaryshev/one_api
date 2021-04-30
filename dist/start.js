@@ -1,3 +1,3 @@
-import { startApiServer } from "./index.js";
-startApiServer().then();
+import { startOneApiServer } from "./index.js";
+startOneApiServer().then();
 //# sourceMappingURL=start.js.map

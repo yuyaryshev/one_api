@@ -3,23 +3,31 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 import { debugMsgFactory, ManageableTimer, yconsole } from "ystd";
 import express from "express";
-import { publishApis } from "./server/controllers/index.js";
 import http from "http";
 // @ts-ignore
 import cors from "cors";
+import { publishOneApis } from "./oneApi.js";
+import { emptyEnv, mergeEnv } from "ystd_server";
 
 // @ts-ignore
 //import nodeSSPI from "express-node-sspi";
 
 const debug = debugMsgFactory("startup");
 
-export interface EnvSettings {
-    default?: boolean;
-    port: number;
+export interface HandlerParams {
+    data: any;
+    currentDataVersion?: string;
+    prevDataVersion?: string;
+    newDataVersion?: string;
 }
 
-export const defaultSettings = (): EnvSettings => ({
-    default: true,
+export interface OneApiSettings {
+    port: number;
+    onGet?: (params: HandlerParams) => Promise<void>;
+    onPost?: (params: HandlerParams) => Promise<void>;
+}
+
+export const defaultSettings = (): OneApiSettings => ({
     port: 4300,
 });
 
@@ -28,7 +36,7 @@ export interface Env {
     onTerminateCallbacks: (() => void)[];
     versionStr: string;
     args: any;
-    settings: EnvSettings;
+    settings: OneApiSettings;
     timers: Set<ManageableTimer>;
     terminate: () => void | Promise<void>;
 }
@@ -39,9 +47,22 @@ export interface IssueLoaderVersion {
     build?: number;
 }
 
-export const startApiServer = async (args?: any): Promise<Env> => {
+export function mergeOneApiEnv<T>(inputEnv?: T) {
+    const pthis = mergeEnv(inputEnv || emptyEnv(), {
+        onTerminateCallbacks: [] as (() => void)[],
+        terminating: false,
+        timers: new Set<ManageableTimer>(),
+        terminate: () => {
+            pthis.terminating = true;
+            for (const callback of pthis.onTerminateCallbacks) callback();
+            for (const timer of pthis.timers) timer.cancel();
+        },
+    });
+    return pthis;
+}
+
+export const startOneApiServer = async (opts?: OneApiSettings): Promise<Env> => {
     const pthis = ({
-        args,
         onTerminateCallbacks: [],
         terminating: false,
         timers: new Set(),
@@ -56,12 +77,19 @@ export const startApiServer = async (args?: any): Promise<Env> => {
     const settingsPath = resolve("./settings.json");
     yconsole.log(`CODE00000197`, `settingsPath = ${settingsPath}`);
 
-    const settingsFromFile = JSON.parse(readFileSync(settingsPath, "utf-8"));
-    settingsFromFile.default = false;
-    const settings = deepMerge(defaultSettings(), settingsFromFile);
+    let settingsFromFile: (OneApiSettings & { default?: boolean }) | undefined;
+    try {
+        settingsFromFile = JSON.parse(readFileSync(settingsPath, "utf-8"));
+        settingsFromFile!.default = false;
+    } catch (e) {
+        if (e.code !== "ENOENT") {
+            console.error(`CODE00000000 Couldn't read '${settingsPath}' because of error\n`, e);
+        }
+    }
+
+    const settings = deepMerge(deepMerge(defaultSettings(), settingsFromFile || {}), opts || {});
 
     const env = Object.assign(pthis, {
-        args,
         settings,
         //        dbProvider,
     } as Env);
@@ -102,9 +130,9 @@ export const startApiServer = async (args?: any): Promise<Env> => {
 
     //    app.use(cors());
 
-    app.use(express.static("public"));
+    //app.use(express.static("public"));
 
-    publishApis(env, app);
+    publishOneApis(env, app);
 
     const httpServer = http.createServer(app);
 

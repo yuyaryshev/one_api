@@ -1,4 +1,4 @@
-import { publishOneApis } from "./oneApi.js";
+import { publishOneApis } from "../../oneApi.js";
 export function publishApis(env, app) {
     publishOneApis(env, app);
 }

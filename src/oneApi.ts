@@ -1,5 +1,5 @@
 import { join } from "path";
-import { Env } from "../../index.js";
+import { Env } from "./index.js";
 import { dateDiff, debugMsgFactory as debugjs, newId as newGuid } from "ystd";
 import { writeFileSerieSync, writeFileSyncIfChanged } from "ystd_server";
 import { Express } from "express";
@@ -10,7 +10,7 @@ import {
     decoderOneSaveApiResponse,
     OneGetApiResponse,
     OneSaveApiResponse,
-} from "../../types/oneApi.js";
+} from "./oneApi.types.js";
 import { readFileSync } from "fs";
 
 const debug = debugjs("oneApi");
@@ -59,6 +59,8 @@ export function publishOneApis(env: Env, app: Express) {
             if (parsed && !parsed.data.ts) parsed.data.ts = "2000-01-01 00:00:00";
 
             const { data, dataVersion } = parsed;
+
+            if (env.settings.onGet) await env.settings.onGet({ data, currentDataVersion: dataVersion });
 
             return res.send(
                 JSON.stringify(
@@ -115,6 +117,14 @@ export function publishOneApis(env: Env, app: Express) {
             const { data, prevDataVersion, newDataVersion } = decoderOneSaveApiRequest.runWithException(
                 req.body.params
             );
+
+            if (env.settings.onPost)
+                await env.settings.onPost({
+                    data,
+                    currentDataVersion: oldDataVersion,
+                    prevDataVersion,
+                    newDataVersion,
+                });
             // if (!data?.tasks?.length) throw new Error(`CODE00000026 Can't save empty task list!`);
 
             if (!data.ts) data.ts = new Date().toISOString();
