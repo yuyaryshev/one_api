@@ -1,5 +1,5 @@
 import { join } from "path";
-import { Env } from "./index.js";
+import { OneApiEnv } from "./startOneApiServer.js";
 import { dateDiff, debugMsgFactory as debugjs, newId as newGuid } from "ystd";
 import { writeFileSerieSync, writeFileSyncIfChanged } from "ystd_server";
 import { Express } from "express";
@@ -31,7 +31,7 @@ function backupFileName(ts: string): string {
 const BACKUP_INTERVAL = 1 * 60 * 60 * 1000;
 const MAX_BACKUPS = 500;
 
-export function publishOneApis(env: Env, app: Express) {
+export function publishOneApis(env: OneApiEnv, app: Express) {
     app.get("/api/one", async function OneGetApi(req, res) {
         const requestTs = new Date().toISOString();
         let error: string | undefined = "CODE00000101 Unknown error";

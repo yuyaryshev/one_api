@@ -57,11 +57,7 @@ async function main() {
 }
 
 main().then();
-
-
 ```
-
-
 
 #### The result
 
@@ -82,6 +78,31 @@ Well... you don't want to loose your data, don't you?
 The version guards you from overwriting the data with empty one or with conflicted data.
 
 If you pass the wrong prevDataVersion yone_api will back up data before it overwrites it.
+
+## Integrating into back-end
+
+If you want to control your backend, but still wish to use **yone_api**
+
+```javascript
+import express from "express";
+import {publishOneApis} from "yone_api";
+//const {publishOneApis} = require("yone_api");
+
+const startAwesomeServer = async () => {
+    const app = express();
+    app.use(express.json());
+
+    let httpServer = http.createServer(app);
+    const env = { settings: {port:80} };        // Settings for OneApi
+    publishOneApis(env, app);                   // This publishes OneApi apis
+
+    const httpServerInstance = httpServer.listen(env.settings.port, () => {
+        console.log(`Started http://localhost:${env.settings.port}/api/one`);
+    });
+};
+```
+
+
 
 # settings.json
 

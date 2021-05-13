@@ -1,4 +1,4 @@
-import { Env } from "./index.js";
+import { OneApiEnv } from "./startOneApiServer.js";
 import { Express } from "express";
-export declare function publishOneApis(env: Env, app: Express): void;
+export declare function publishOneApis(env: OneApiEnv, app: Express): void;
 //# sourceMappingURL=oneApi.d.ts.map
