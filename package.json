@@ -52,10 +52,10 @@
         "clean:types": "yb clean_types",
         "build:types": "npm run clean:types && tsc -p tsconfig-declarations.json",
         "watch:types": "npm run clean:types && tsc -p tsconfig-declarations.json -w",
-        "clear:docs": "rm -rf docs/*",
+        "clear:docs": "yb clean_docs",
         "build:docs": "api-extractor run --local && api-documenter markdown --input-folder temp --output-folder docs",
         "clean:ts": "yb clean_ts",
-        "clean": "rm -rf dist/* && yb clean_all && npm run clear:docs"
+        "clean": "yb clean_all && npm run clear:docs"
     },
     "resolutions": {
         "@babel/runtime": "^7.12.5",
