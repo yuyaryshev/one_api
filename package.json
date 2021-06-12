@@ -32,7 +32,7 @@
         "resolver": "jest-ts-webcompat-resolver"
     },
     "scripts": {
-        "test": "jest --passWithNoTests",
+        "test": "jest --config=jest.config-ts.cjs --passWithNoTests",
         "build": "npm run precompile_full && npm run clean && npm run build:esm && npm run build:cjs && npm run build:types && npm run lint && npm run test && npm run build:docs",
         "build:ts": "npm run clean:ts && tsc",
         "tsc": "npm run build:ts",
@@ -55,7 +55,10 @@
         "clear:docs": "yb clean_docs",
         "build:docs": "api-extractor run --local && api-documenter markdown --input-folder temp --output-folder docs",
         "clean:ts": "yb clean_ts",
-        "clean": "yb clean_all && npm run clear:docs"
+        "clean": "yb clean_all && npm run clear:docs",
+        "watch:test:cjs": "npm run build:cjs && jest --config=jest.config-cjs.cjs --passWithNoTests -w",
+        "test:cjs": "npm run build:cjs && jest --config=jest.config-cjs.cjs --passWithNoTests",
+        "test:ts": "jest --config=jest.config-ts.cjs --passWithNoTests"
     },
     "resolutions": {
         "@babel/runtime": "^7.12.5",
