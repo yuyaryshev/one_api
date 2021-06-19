@@ -57,7 +57,7 @@ export const startOneApiServer = async (opts?: OneApiSettings): Promise<OneApiSe
         settingsFromFile!.default = false;
     } catch (e) {
         if (e.code !== "ENOENT") {
-            console.error(`CODE00000000 Couldn't read '${settingsPath}' because of error\n`, e);
+            console.error(`CODE00000280 Couldn't read '${settingsPath}' because of error\n`, e);
         }
     }
 

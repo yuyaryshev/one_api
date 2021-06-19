@@ -1,0 +1,67 @@
+[
+    {
+        "cpl": 101,
+        "filePath": "src\\oneApi.ts",
+        "pos": 2707
+    },
+    {
+        "cpl": 202,
+        "filePath": "src\\oneApi.ts",
+        "pos": 3113
+    },
+    {
+        "cpl": 104,
+        "filePath": "src\\oneApi.ts",
+        "pos": 4668
+    },
+    {
+        "cpl": 26,
+        "filePath": "src\\oneApi.ts",
+        "pos": 6511
+    },
+    {
+        "cpl": 310,
+        "filePath": "src\\oneApi.ts",
+        "pos": 6720
+    },
+    {
+        "cpl": 94,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 1428
+    },
+    {
+        "cpl": 197,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 1764
+    },
+    {
+        "cpl": 183,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 2714
+    },
+    {
+        "cpl": 291,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 2973
+    },
+    {
+        "cpl": 281,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 3617
+    },
+    {
+        "cpl": 282,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 3805
+    },
+    {
+        "cpl": 279,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 3859
+    },
+    {
+        "cpl": 280,
+        "filePath": "src\\startOneApiServer.ts",
+        "pos": 2106
+    }
+]
